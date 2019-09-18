@@ -1,0 +1,31 @@
+import { Model, Sequelize } from 'sequelize';
+import bcrypt from 'bcrypt';
+
+class User extends Model {
+  static init(sequelize) {
+    super.init(
+      {
+        name: Sequelize.STRING,
+        email: Sequelize.STRING,
+        // O campo VIRTUAL nunca vai existir no banco de dados,
+        // somente no codigo
+        password: Sequelize.VIRTUAL,
+        password_hash: Sequelize.STRING,
+        provider: Sequelize.BOOLEAN,
+      },
+      {
+        sequelize,
+      },
+    );
+
+    this.addHook('beforeSave', async (user) => {
+      if (user.password) {
+        user.password_hash = await bcrypt.hash(user.password, 8);
+      }
+    });
+
+    return this;
+  }
+}
+
+export default User;
