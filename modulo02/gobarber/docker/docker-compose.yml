@@ -16,4 +16,4 @@ services:
       PGADMIN_DEFAULT_EMAIL: mendesxx.ti@hotmail.com
       PGADMIN_DEFAULT_PASSWORD: postgres
     ports:
-      - 8080:80
+      - 5430:80
