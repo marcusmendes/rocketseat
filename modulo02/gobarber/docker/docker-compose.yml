@@ -17,3 +17,9 @@ services:
       PGADMIN_DEFAULT_PASSWORD: postgres
     ports:
       - 5430:80
+
+  mongobarber:
+    image: mongo
+    restart: always
+    ports:
+      - 27017:27017
