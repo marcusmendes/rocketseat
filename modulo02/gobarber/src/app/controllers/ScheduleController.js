@@ -1,4 +1,5 @@
 import { Op } from 'sequelize';
+import { startOfDay, endOfDay, parseISO } from 'date-fns';
 
 import Appointment from '../models/Appointment';
 import User from '../models/User';
@@ -17,12 +18,17 @@ class ScheduleController {
     }
 
     const { date } = req.query;
+    const parseDate = parseISO(date);
 
     const appointments = await Appointment.findAll({
       where: {
-        date,
         provider_id: req.userId,
+        canceled_at: null,
+        date: {
+          [Op.between]: [startOfDay(parseDate), endOfDay(parseDate)],
+        },
       },
+      order: ['date'],
     });
 
     return res.json(appointments);
