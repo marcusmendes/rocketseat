@@ -1,59 +1,79 @@
-import React from 'react';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { MdAddShoppingCart } from 'react-icons/md';
+import api from '../../services/api';
+import { formatPrice } from '../../util/format';
+
+import * as CartAction from '../../store/modules/cart/actions';
 
 import { ProductList } from './styles';
 
-export default function Home() {
-  return (
-    <ProductList>
-      <li>
-        <img
-          src="https://static.netshoes.com.br/produtos/sapatenis-walkabout-wkt-masculino/38/H25-1070-138/H25-1070-138_detalhe2.jpg?ims=326x"
-          alt="Tênis"
-        />
+class Home extends Component {
+  constructor() {
+    super();
 
-        <strong>Tênis muito legal</strong>
-        <span>R$ 129,90</span>
+    this.state = {
+      products: [],
+    };
+  }
 
-        <button type="button">
-          <div>
-            <MdAddShoppingCart size={16} color="#FFF" /> 3
-          </div>
-          <span>ADICIONAR AO CARRINHO</span>
-        </button>
-      </li>
-      <li>
-        <img
-          src="https://static.netshoes.com.br/produtos/sapatenis-walkabout-wkt-masculino/38/H25-1070-138/H25-1070-138_detalhe2.jpg?ims=326x"
-          alt="Tênis"
-        />
+  async componentDidMount() {
+    const response = await api.get('products');
 
-        <strong>Tênis muito legal</strong>
-        <span>R$ 129,90</span>
+    const data = response.data.map(product => ({
+      ...product,
+      priceFormated: formatPrice(product.price),
+    }));
 
-        <button type="button">
-          <div>
-            <MdAddShoppingCart size={16} color="#FFF" /> 3
-          </div>
-          <span>ADICIONAR AO CARRINHO</span>
-        </button>
-      </li>
-      <li>
-        <img
-          src="https://static.netshoes.com.br/produtos/sapatenis-walkabout-wkt-masculino/38/H25-1070-138/H25-1070-138_detalhe2.jpg?ims=326x"
-          alt="Tênis"
-        />
+    this.setState({ products: data });
+  }
 
-        <strong>Tênis muito legal</strong>
-        <span>R$ 129,90</span>
+  handleAddProduct = product => {
+    const { addToCart } = this.props;
+    addToCart(product);
+  };
 
-        <button type="button">
-          <div>
-            <MdAddShoppingCart size={16} color="#FFF" /> 3
-          </div>
-          <span>ADICIONAR AO CARRINHO</span>
-        </button>
-      </li>
-    </ProductList>
-  );
+  render() {
+    const { products } = this.state;
+    const { amount } = this.props;
+
+    return (
+      <ProductList>
+        {products.map(product => (
+          <li key={product.id}>
+            <img src={product.image} alt={product.title} />
+
+            <strong>{product.title}</strong>
+            <span>{product.priceFormated}</span>
+
+            <button
+              type="button"
+              onClick={() => this.handleAddProduct(product)}
+            >
+              <div>
+                <MdAddShoppingCart size={16} color="#FFF" />{' '}
+                {amount[product.id] || 0}
+              </div>
+              <span>ADICIONAR AO CARRINHO</span>
+            </button>
+          </li>
+        ))}
+      </ProductList>
+    );
+  }
 }
+
+const mapStateToProps = state => ({
+  amount: state.cart.reduce((amount, product) => {
+    amount[product.id] = product.amount;
+    return amount;
+  }, {}),
+});
+
+const mapDispatchToProps = dispatch => bindActionCreators(CartAction, dispatch);
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Home);
