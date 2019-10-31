@@ -8,15 +8,7 @@ services:
       POSTGRES_PASSWORD: docker
       POSTGRES_DB: gobarber
     ports:
-      - 5432:5432
-
-  pgadmin:
-    image: dpage/pgadmin4
-    environment:
-      PGADMIN_DEFAULT_EMAIL: mendesxx.ti@hotmail.com
-      PGADMIN_DEFAULT_PASSWORD: postgres
-    ports:
-      - 5430:80
+      - 5434:5432
 
   mongobarber:
     image: mongo
